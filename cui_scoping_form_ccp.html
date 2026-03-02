@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUI Scoping Discovery — CCP Level Assessment | Innovatech Consulting Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0A0E1A;
+  --navy: #0F1E35;
+  --steel: #1C3252;
+  --slate: #2A4A6B;
+  --accent: #C8410A;
+  --amber: #E8961A;
+  --sky: #1A6EA8;
+  --fog: #EDF2F7;
+  --mist: #F7FAFC;
+  --cloud: #FFFFFF;
+  --wire: #CBD5E0;
+  --ghost: #718096;
+  --critical: #C0392B;
+  --high: #E67E22;
+  --medium: #2980B9;
+  --low: #27AE60;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--cloud);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────────── */
+.site-header {
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+  clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 100%, 10% 100%, 0 90%);
+}
+
+.logo-text { line-height: 1.2; }
+.logo-text .firm { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: white; text-transform: uppercase; }
+.logo-text .tagline { font-size: 10px; color: var(--ghost); letter-spacing: 0.04em; }
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+.badge-ccp { background: rgba(200,65,10,0.2); color: #FF8060; border: 1px solid rgba(200,65,10,0.4); }
+.badge-conf { background: rgba(232,150,26,0.15); color: var(--amber); border: 1px solid rgba(232,150,26,0.3); }
+
+/* ── PROGRESS ────────────────────────────────────────────────────────── */
+.progress-shell {
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 10px 32px;
+}
+
+.progress-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-label { font-family: var(--mono); font-size: 10px; color: var(--ghost); white-space: nowrap; letter-spacing: 0.06em; }
+.progress-track { flex: 1; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--amber)); border-radius: 2px; width: 0%; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.progress-pct { font-family: var(--mono); font-size: 11px; color: var(--amber); font-weight: 600; min-width: 36px; text-align: right; }
+
+.domain-nav {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding-top: 8px;
+  scrollbar-width: none;
+}
+.domain-nav::-webkit-scrollbar { display: none; }
+
+.nav-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 8px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-dot:hover { opacity: 0.7; }
+.nav-dot.active { opacity: 1; }
+.nav-dot-circle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ghost);
+  transition: background 0.2s, transform 0.2s;
+}
+.nav-dot.active .nav-dot-circle { background: var(--amber); transform: scale(1.3); }
+.nav-dot-label { font-family: var(--mono); font-size: 8px; color: var(--ghost); letter-spacing: 0.04em; white-space: nowrap; }
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────── */
+.page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .page-wrap { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: 130px;
+}
+
+.sidebar-card {
+  background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  background: var(--steel);
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ghost);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.domain-list { padding: 8px 0; }
+.domain-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.domain-item:hover { background: rgba(255,255,255,0.04); }
+.domain-item.active { background: rgba(200,65,10,0.12); border-right: 2px solid var(--accent); }
+
+.domain-code {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent);
+  width: 28px;
+  flex-shrink: 0;
+}
+.domain-name { font-size: 11px; color: var(--ghost); line-height: 1.3; }
+.domain-item.active .domain-name { color: white; }
+.domain-check {
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.domain-check.done { background: var(--low); border-color: var(--low); color: white; }
+
+.sidebar-note {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 10px;
+  color: var(--ghost);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── MAIN FORM ───────────────────────────────────────────────────────── */
+.form-main { min-width: 0; }
+
+.intro-block {
+  background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 32px;
+}
+
+.intro-block h1 {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.intro-block p {
+  font-size: 13px;
+  color: var(--ghost);
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+.intro-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.meta-icon { font-size: 12px; }
+.meta-text { font-family: var(--mono); font-size: 10px; color: var(--ghost); }
+.meta-text strong { color: var(--amber); }
+
+/* ── DOMAIN SECTIONS ─────────────────────────────────────────────────── */
+.domain-section {
+  background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.domain-header {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  user-select: none;
+}
+
+.domain-code-block {
+  background: var(--steel);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 64px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.dc-code {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.dc-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ghost);
+}
+
+.domain-title-block {
+  flex: 1;
+  padding: 16px 20px;
+}
+
+.domain-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 3px;
+}
+
+.domain-subtitle {
+  font-size: 11px;
+  color: var(--ghost);
+  line-height: 1.5;
+}
+
+.domain-toggle {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  color: var(--ghost);
+  font-size: 18px;
+  transition: transform 0.25s;
+}
+
+.domain-section.collapsed .domain-toggle { transform: rotate(-90deg); }
+
+.domain-body {
+  padding: 0;
+  overflow: hidden;
+  max-height: 9999px;
+  transition: max-height 0.4s ease;
+}
+
+.domain-section.collapsed .domain-body { max-height: 0; }
+
+.practice-group {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 20px 24px;
+}
+
+.practice-group:last-child { border-bottom: none; }
+
+.practice-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.practice-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  background: var(--slate);
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+.practice-title {
+  font-size: 11px;
+  color: var(--ghost);
+  font-style: italic;
+}
+
+.practice-question {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.practice-guidance {
+  font-size: 11px;
+  color: var(--ghost);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(255,255,255,0.08);
+}
+
+.practice-guidance strong { color: var(--amber); font-weight: 600; }
+
+/* ── FORM CONTROLS ───────────────────────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-group:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ghost);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.field-label .req { color: var(--accent); margin-left: 2px; }
+
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: white;
+  font-family: var(--sans);
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--sky);
+  background: rgba(26,110,168,0.08);
+}
+
+input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23718096' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+select option { background: var(--navy); color: white; }
+
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 600px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+/* ── CHECKBOX / RADIO ────────────────────────────────────────────────── */
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.option-grid.wide { grid-template-columns: 1fr; }
+.option-grid.two { grid-template-columns: 1fr 1fr; }
+
+.opt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.opt-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+.opt-item.selected { background: rgba(26,110,168,0.15); border-color: rgba(26,110,168,0.5); }
+
+.opt-item input[type="checkbox"],
+.opt-item input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--sky);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.opt-text { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+.opt-text .code { font-family: var(--mono); font-size: 10px; color: var(--ghost); display: block; margin-top: 1px; }
+
+.radio-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.radio-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  transition: all 0.15s;
+}
+.radio-pill:hover { background: rgba(255,255,255,0.07); color: white; }
+.radio-pill.selected { background: rgba(26,110,168,0.2); border-color: var(--sky); color: white; }
+.radio-pill input { accent-color: var(--sky); cursor: pointer; }
+
+/* ── CONDITIONAL REVEAL ──────────────────────────────────────────────── */
+.reveal-block {
+  display: none;
+  background: rgba(26,110,168,0.06);
+  border: 1px solid rgba(26,110,168,0.2);
+  border-radius: 3px;
+  padding: 16px;
+  margin-top: 10px;
+}
+.reveal-block.show { display: block; }
+.reveal-label { font-family: var(--mono); font-size: 10px; color: var(--sky); letter-spacing: 0.06em; margin-bottom: 10px; display: block; }
+
+/* ── EVIDENCE BOX ────────────────────────────────────────────────────── */
+.evidence-block {
+  background: rgba(232,150,26,0.06);
+  border: 1px solid rgba(232,150,26,0.2);
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin-top: 10px;
+}
+.evidence-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+.evidence-list { list-style: none; padding: 0; }
+.evidence-list li {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  padding: 3px 0;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.evidence-list li::before { content: '→'; color: var(--amber); flex-shrink: 0; font-family: var(--mono); }
+
+/* ── SEVERITY TAGS ───────────────────────────────────────────────────── */
+.sev-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+.sev-critical { background: rgba(192,57,43,0.2); color: #FF7060; border: 1px solid rgba(192,57,43,0.4); }
+.sev-high { background: rgba(230,126,34,0.2); color: #FFB060; border: 1px solid rgba(230,126,34,0.4); }
+.sev-medium { background: rgba(41,128,185,0.2); color: #60B0FF; border: 1px solid rgba(41,128,185,0.4); }
+
+/* ── SECTION DIVIDER ─────────────────────────────────────────────────── */
+.sub-section {
+  background: rgba(255,255,255,0.02);
+  border-radius: 3px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.sub-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--sky);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sub-section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+/* ── SUBMIT ──────────────────────────────────────────────────────────── */
+.submit-block {
+  background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 32px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.submit-block h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.submit-block p { font-size: 12px; color: var(--ghost); line-height: 1.7; max-width: 520px; margin: 0 auto 24px; }
+
+.btn-submit {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 14px 36px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  clip-path: polygon(0 0, 96% 0, 100% 8%, 100% 100%, 4% 100%, 0 92%);
+}
+.btn-submit:hover { background: #A33508; transform: translateY(-1px); }
+.btn-submit:disabled { background: #333; cursor: not-allowed; transform: none; }
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.disclaimer { font-size: 10px; color: var(--ghost); margin-top: 14px; font-style: italic; }
+
+.alert {
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  display: none;
+}
+.alert-success { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #7ED8A0; }
+.alert-error { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); color: #FF8070; }
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--steel); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">ICS</div>
+      <div class="logo-text">
+        <div class="firm">Innovatech Consulting Solutions</div>
+        <div class="tagline">CMMC Level 2 — CUI Scoping Discovery</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="badge badge-ccp">CCP Methodology</span>
+      <span class="badge badge-conf">Confidential</span>
+    </div>
+  </div>
+</header>
+
+<div class="progress-shell">
+  <div class="progress-inner">
+    <span class="progress-label">COMPLETION</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+  <nav class="domain-nav" id="domainNav"></nav>
+</div>
+
+<div class="page-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-header">NIST 800-171 Domains</div>
+      <div class="domain-list" id="sidebarDomains"></div>
+      <div class="sidebar-note">Questions are mapped to specific practice requirements. Evidence requested reflects CAP examine, interview, and test methods.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN FORM -->
+  <main class="form-main">
+
+    <div class="intro-block">
+      <h1>CUI Scoping Discovery Questionnaire</h1>
+      <p>This questionnaire follows the CMMC Assessment Process (CAP) methodology and is structured around all 14 NIST SP 800-171 Rev 2 practice families. Questions are written at the CCP level — each asks not only <em>whether</em> a control exists, but <em>how</em> it is implemented, <em>who</em> owns it, and <em>what evidence</em> exists to demonstrate it.</p>
+      <p>Answer as specifically as possible. Gaps identified here become your roadmap. Inaccurate or overstated answers will be surfaced during assessment — honesty now saves time and money later.</p>
+      <div class="intro-meta">
+        <div class="meta-item"><span class="meta-icon">📋</span><span class="meta-text"><strong>110</strong> Practices across 14 Domains</span></div>
+        <div class="meta-item"><span class="meta-icon">⏱</span><span class="meta-text">Est. <strong>30–45 min</strong></span></div>
+        <div class="meta-item"><span class="meta-icon">🔒</span><span class="meta-text"><strong>Confidential</strong> — CCP protected</span></div>
+        <div class="meta-item"><span class="meta-icon">📄</span><span class="meta-text">Generates <strong>PDF scoping report</strong></span></div>
+      </div>
+    </div>
+
+    <form id="scopingForm" novalidate>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SECTION 0: ORGANIZATIONAL IDENTIFICATION
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-org" data-domain="ORG">
+      <div class="domain-header" onclick="toggleSection('sec-org')">
+        <div class="domain-code-block"><div class="dc-code">ORG</div><div class="dc-num">Intake</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Organizational Identification</div>
+          <div class="domain-subtitle">Company profile, contracts, and CUI handling basis</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Legal Company Name <span class="req">*</span></label>
+              <input type="text" name="company_name" required placeholder="Exact legal entity name">
+            </div>
+            <div class="form-group">
+              <label class="field-label">DBA / Operating Name (if different)</label>
+              <input type="text" name="dba_name" placeholder="Leave blank if same">
+            </div>
+          </div>
+          <div class="three-col">
+            <div class="form-group">
+              <label class="field-label">CAGE Code</label>
+              <input type="text" name="cage_code" placeholder="5-char CAGE code">
+            </div>
+            <div class="form-group">
+              <label class="field-label">DUNS / UEI</label>
+              <input type="text" name="uei" placeholder="Unique Entity ID">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Current SPRS Score</label>
+              <input type="text" name="sprs_score" placeholder="e.g. -50, 88, Not submitted">
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Primary Assessment Contact <span class="req">*</span></label>
+              <input type="text" name="contact_name" required placeholder="Full name and title">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Contact Email <span class="req">*</span></label>
+              <input type="email" name="contact_email" required placeholder="email@company.com">
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Total Employees</label>
+              <select name="total_employees">
+                <option value="">Select range</option>
+                <option>1–10</option><option>11–25</option><option>26–50</option>
+                <option>51–100</option><option>101–250</option><option>250+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="field-label">Number of Physical Locations</label>
+              <select name="num_locations">
+                <option value="">Select</option>
+                <option>1</option><option>2–3</option><option>4–10</option><option>10+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Prime Contractor(s) / DoD Contracts in Scope</label>
+            <textarea name="prime_contracts" placeholder="List prime contractors and contract numbers if known. e.g. Lockheed Martin — Contract W123456-24-C-0001 (F-35 subcomponent manufacturing)"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Does your contract explicitly require CMMC Level 2? <span class="req">*</span></label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="cmmc_required" value="Yes — explicitly stated in contract"> Yes — explicit contract requirement</label>
+              <label class="radio-pill"><input type="radio" name="cmmc_required" value="Yes — prime contractor requiring it"> Yes — prime requiring it</label>
+              <label class="radio-pill"><input type="radio" name="cmmc_required" value="Anticipated — not yet in contract"> Anticipated</label>
+              <label class="radio-pill"><input type="radio" name="cmmc_required" value="Proactive — pursuing before required"> Proactive</label>
+              <label class="radio-pill"><input type="radio" name="cmmc_required" value="Unsure"> Unsure</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">NAICS Code(s)</label>
+            <input type="text" name="naics" placeholder="e.g. 332710 — Machine Shops, 541330 — Engineering Services">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Target date for C3PAO assessment</label>
+            <input type="date" name="target_assessment_date">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CUI TAXONOMY
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-cui" data-domain="CUI">
+      <div class="domain-header" onclick="toggleSection('sec-cui')">
+        <div class="domain-code-block"><div class="dc-code">CUI</div><div class="dc-num">Scoping</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">CUI Identification &amp; Taxonomy</div>
+          <div class="domain-subtitle">CUI Registry categories, marking, and boundary definition</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref">
+            <span class="practice-num">Scoping Foundation</span>
+            <span class="practice-title">Defining what is CUI and why it is in scope</span>
+          </div>
+          <div class="practice-question">Which CUI Registry categories does your organization handle?</div>
+          <div class="practice-guidance">Select all that apply. These categories determine which CUI marking requirements apply and influence the sensitivity of your assessment boundary. Reference: <strong>CUI Registry (archives.gov)</strong></div>
+          <div class="option-grid">
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="CTI — Critical Infrastructure"><span class="opt-text">Critical Infrastructure<span class="code">CTI</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="EXPT — Export Controlled (ITAR/EAR)"><span class="opt-text">Export Controlled (ITAR/EAR)<span class="code">EXPT</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="PRVCY — Privacy"><span class="opt-text">Privacy / PII<span class="code">PRVCY</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="PROCURE — Procurement &amp; Acquisition"><span class="opt-text">Procurement &amp; Acquisition<span class="code">PROCURE</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="OPSEC — Operations Security"><span class="opt-text">Operations Security<span class="code">OPSEC</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="TECHDATA — Technical Data"><span class="opt-text">Technical Data<span class="code">TECHDATA</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="INTEL — Intelligence"><span class="opt-text">Intelligence<span class="code">INTEL</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="MILSYS — Military Systems"><span class="opt-text">Military Systems<span class="code">MILSYS</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="R&amp;D — Research &amp; Development"><span class="opt-text">Research &amp; Development<span class="code">R&amp;D</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="FINANCE — Financial"><span class="opt-text">Financial<span class="code">FINANCE</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="LEGAL — Legal"><span class="opt-text">Legal<span class="code">LEGAL</span></span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_categories" value="Unknown / Need Guidance"><span class="opt-text">Unknown / Need Guidance</span></label>
+          </div>
+        </div>
+        <div class="practice-group">
+          <div class="practice-question">How is CUI identified and marked in your environment?</div>
+          <div class="practice-guidance">Per 32 CFR Part 2002, CUI must be marked appropriately. This question identifies whether marking is being done correctly or if remediation is needed.</div>
+          <div class="option-grid">
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="CUI header and footer on documents"><span class="opt-text">CUI header/footer on documents</span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="CUI//CONTROLLED category designation used"><span class="opt-text">Category designation used (e.g. CUI//EXPT)</span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="Contract specifies what qualifies as CUI"><span class="opt-text">Contract defines CUI scope</span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="We mark outgoing CUI but not internally"><span class="opt-text">Mark outgoing only, not internally</span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="CUI is not currently being marked"><span class="opt-text">Not currently marked</span></label>
+            <label class="opt-item"><input type="checkbox" name="cui_marking" value="We receive marked CUI but do not re-mark"><span class="opt-text">Receive marked CUI, don't re-mark</span></label>
+          </div>
+        </div>
+        <div class="practice-group">
+          <div class="practice-question">Describe where the CUI boundary begins and ends in your organization.</div>
+          <div class="practice-guidance">A CUI boundary defines the systems, people, and physical spaces that touch CUI. This narrative is the foundation of your System Security Plan (SSP). Be as specific as possible — building numbers, network segments, application names.</div>
+          <textarea name="cui_boundary_description" placeholder="e.g. CUI enters via email from Lockheed through our Microsoft 365 GCC High tenant, is stored on a dedicated SharePoint site accessible only to our engineering team (7 people), processed in SolidWorks on 4 dedicated engineering workstations on VLAN 20, and transmitted back via the AMRDEC SAFE portal. No CUI touches our general corporate network (VLAN 10) or any non-engineering personnel."></textarea>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>System Security Plan (SSP) with boundary diagram</li>
+              <li>Network topology diagram showing CUI flow</li>
+              <li>Data flow diagram (DFD) showing CUI entry, processing, storage, and exit points</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         AC — ACCESS CONTROL
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-AC" data-domain="AC">
+      <div class="domain-header" onclick="toggleSection('sec-AC')">
+        <div class="domain-code-block"><div class="dc-code">AC</div><div class="dc-num">3.1</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Access Control</div>
+          <div class="domain-subtitle">22 practices — Who can access CUI systems and how that access is managed</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.1.1 / 3.1.2</span><span class="practice-title">Authorized access &amp; least privilege</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">How is access to CUI systems provisioned, reviewed, and revoked?</div>
+          <div class="practice-guidance">Assessors will examine the provisioning process, review access logs, and interview system administrators. They need to see that access is need-to-know, not need-to-not-deny. <strong>Key: who approves access requests and what is the documented process?</strong></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Formal access request and approval process documented"><span class="opt-text">Formal access request &amp; approval process documented</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Access approved by system owner or manager"><span class="opt-text">Access approved by named system owner/manager</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Least privilege principle applied (minimum necessary access)"><span class="opt-text">Least privilege applied (minimum necessary)</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Periodic access reviews conducted (quarterly or annual)"><span class="opt-text">Periodic access reviews (quarterly or annual)</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Immediate revocation process for terminated employees"><span class="opt-text">Immediate revocation for terminated employees</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_provisioning" value="Shared/group accounts are used for CUI systems"><span class="opt-text">⚠ Shared/group accounts used for CUI systems</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Describe your offboarding process — specifically how CUI system access is revoked when an employee leaves</label>
+            <textarea name="ac_offboarding" placeholder="e.g. HR notifies IT via ServiceDesk ticket same day as termination. IT disables AD account within 1 hour, removes M365 license, and documents in access log. Access review conducted within 5 business days of all shared resources the employee had access to..."></textarea>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>Access control policy and procedures</li>
+              <li>Sample access request/approval records</li>
+              <li>Access review logs (last 12 months)</li>
+              <li>Terminated employee list cross-referenced with active accounts</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.1.3</span><span class="practice-title">Control CUI flow</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">How do you prevent CUI from flowing to unauthorized systems, users, or external destinations?</div>
+          <div class="practice-guidance"><strong>This is often a gap.</strong> Controls must be technical, not just policy. DLP, email filtering rules, blocked USB ports, and network segmentation all count. Policy-only controls without technical enforcement are not sufficient.</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="Data Loss Prevention (DLP) tool deployed"><span class="opt-text">DLP tool deployed (specify in notes)</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="Email rules prevent CUI from going to personal accounts"><span class="opt-text">Email rules block CUI to personal accounts</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="USB/removable media blocked or controlled"><span class="opt-text">USB/removable media blocked or controlled</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="Network segmentation prevents CUI from reaching general network"><span class="opt-text">Network segmentation isolates CUI</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="Cloud upload blocked to unauthorized services"><span class="opt-text">Cloud upload blocked to unauthorized services</span></label>
+            <label class="opt-item"><input type="checkbox" name="ac_flow" value="Policy only — no technical controls enforcing CUI flow"><span class="opt-text">⚠ Policy only — no technical enforcement</span></label>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.1.12 / 3.1.13 / 3.1.14</span><span class="practice-title">Remote access control</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">Do users access CUI systems remotely? If so, describe exactly how.</div>
+          <div class="radio-row">
+            <label class="radio-pill"><input type="radio" name="remote_access_yn" value="Yes"> Yes</label>
+            <label class="radio-pill"><input type="radio" name="remote_access_yn" value="No"> No</label>
+          </div>
+          <div class="reveal-block" id="remote-detail">
+            <span class="reveal-label">— Remote Access Detail</span>
+            <div class="option-grid two">
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="VPN with MFA"><span class="opt-text">VPN with MFA enforced</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="VPN without MFA"><span class="opt-text">⚠ VPN without MFA</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="RDP directly exposed to internet"><span class="opt-text">⚠ RDP exposed to internet</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="RDP via VPN or jump server"><span class="opt-text">RDP via VPN or jump server</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="Zero Trust Network Access (ZTNA)"><span class="opt-text">Zero Trust / ZTNA</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="Cloud SaaS with MFA (no VPN needed)"><span class="opt-text">Cloud SaaS with MFA (GCC High / IL4+)</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="Third-party remote tool (TeamViewer, AnyDesk)"><span class="opt-text">⚠ TeamViewer / AnyDesk / similar</span></label>
+              <label class="opt-item"><input type="checkbox" name="remote_methods" value="Personal devices used for remote access"><span class="opt-text">⚠ Personal devices used (BYOD)</span></label>
+            </div>
+            <div class="form-group" style="margin-top:12px">
+              <label class="field-label">VPN Solution Name / Version (if applicable)</label>
+              <input type="text" name="vpn_solution" placeholder="e.g. Cisco AnyConnect, Palo Alto GlobalProtect, OpenVPN">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Are remote sessions logged and monitored?</label>
+              <div class="radio-row">
+                <label class="radio-pill"><input type="radio" name="remote_logging" value="Yes — logs reviewed regularly"> Yes — reviewed regularly</label>
+                <label class="radio-pill"><input type="radio" name="remote_logging" value="Yes — logged but not actively reviewed"> Logged, not reviewed</label>
+                <label class="radio-pill"><input type="radio" name="remote_logging" value="No"> No</label>
+                <label class="radio-pill"><input type="radio" name="remote_logging" value="Unsure"> Unsure</label>
+              </div>
+            </div>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>VPN configuration screenshots showing encryption and authentication settings</li>
+              <li>Remote access policy</li>
+              <li>MFA enrollment records for remote users</li>
+              <li>Remote session logs (sample)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.1.20</span><span class="practice-title">External connections</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">Do any external systems or third parties connect directly to your CUI environment?</div>
+          <div class="practice-guidance">This includes MSP remote management tools, vendor connections, cloud sync agents, and any B2B integrations. Each external connection extends your attack surface and assessment boundary.</div>
+          <div class="radio-row">
+            <label class="radio-pill"><input type="radio" name="external_connections_yn" value="Yes"> Yes</label>
+            <label class="radio-pill"><input type="radio" name="external_connections_yn" value="No"> No</label>
+            <label class="radio-pill"><input type="radio" name="external_connections_yn" value="Unsure"> Unsure</label>
+          </div>
+          <div class="reveal-block" id="ext-conn-detail">
+            <span class="reveal-label">— External Connection Detail</span>
+            <textarea name="external_connections_detail" placeholder="For each connection, describe: Who is the external party? What system do they connect to? What method is used? Is access monitored and logged? Is there a written agreement?&#10;&#10;e.g. MSP (Altec Technologies) has RMM agent (ConnectWise) on all endpoints — admin access — monitored via audit log — covered by MSA with security addendum..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         IA — IDENTIFICATION & AUTHENTICATION
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-IA" data-domain="IA">
+      <div class="domain-header" onclick="toggleSection('sec-IA')">
+        <div class="domain-code-block"><div class="dc-code">IA</div><div class="dc-num">3.5</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Identification &amp; Authentication</div>
+          <div class="domain-subtitle">11 practices — MFA, passwords, and identity management for CUI systems</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.5.3</span><span class="practice-title">Multi-factor authentication</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">Is multi-factor authentication (MFA) enforced for all access to CUI systems — including local, remote, and privileged access?</div>
+          <div class="practice-guidance"><strong>MFA is non-negotiable for CMMC L2.</strong> MFA must be enforced via Conditional Access or equivalent — not just available. Assessors will test this by attempting to authenticate without MFA. "We tell people to use it" is not sufficient.</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="MFA enforced via Conditional Access for all M365/cloud"><span class="opt-text">MFA enforced — M365/cloud (Conditional Access)</span></label>
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="MFA enforced for VPN/remote access"><span class="opt-text">MFA enforced — VPN/remote access</span></label>
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="MFA enforced for privileged/admin accounts"><span class="opt-text">MFA enforced — privileged/admin accounts</span></label>
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="MFA available but not enforced/mandatory"><span class="opt-text">⚠ MFA available but not enforced</span></label>
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="MFA not deployed for some CUI systems"><span class="opt-text">⚠ MFA missing on some CUI systems</span></label>
+            <label class="opt-item"><input type="checkbox" name="mfa_coverage" value="No MFA deployed"><span class="opt-text">⚠ No MFA deployed</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">MFA Solution Used</label>
+            <input type="text" name="mfa_solution" placeholder="e.g. Microsoft Authenticator / Entra ID Conditional Access, Duo, YubiKey, Google Authenticator">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Are there any accounts or systems where MFA is NOT enforced? List them and explain why.</label>
+            <textarea name="mfa_exceptions" placeholder="e.g. Service accounts in Active Directory do not use MFA — compensating control is network isolation and no interactive login. Local admin account on backup server — compensating control is..."></textarea>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>Conditional Access policy screenshots showing MFA enforcement</li>
+              <li>MFA enrollment report (all users)</li>
+              <li>List of accounts excluded from MFA with documented rationale</li>
+              <li>Live demonstration: assessor will attempt login without MFA</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.5.7 / 3.5.8</span><span class="practice-title">Password complexity &amp; prohibition</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">Describe your password policy for CUI system accounts.</div>
+          <div class="practice-guidance">NIST SP 800-63B guidance (which CMMC aligns to) emphasizes length over complexity. Minimum 12 characters is standard. Assessors will verify the policy is technically enforced, not just documented.</div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Minimum Password Length</label>
+              <select name="password_min_length">
+                <option value="">Select</option>
+                <option>Less than 8 characters</option>
+                <option>8 characters</option>
+                <option>12 characters</option>
+                <option>14+ characters</option>
+                <option>Passphrase / no minimum</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="field-label">Password Policy Enforcement Method</label>
+              <select name="password_enforcement">
+                <option value="">Select</option>
+                <option>Active Directory Group Policy</option>
+                <option>Azure AD / Entra ID Password Policy</option>
+                <option>Third-party PAM tool</option>
+                <option>Policy document only — not technically enforced</option>
+                <option>No formal password policy</option>
+              </select>
+            </div>
+          </div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="password_controls" value="Password history enforced (no reuse)"><span class="opt-text">Password history enforced (no reuse)</span></label>
+            <label class="opt-item"><input type="checkbox" name="password_controls" value="Breached password list checked on set/change"><span class="opt-text">Breached password checking (HIBP or similar)</span></label>
+            <label class="opt-item"><input type="checkbox" name="password_controls" value="Account lockout after failed attempts"><span class="opt-text">Account lockout after failed attempts</span></label>
+            <label class="opt-item"><input type="checkbox" name="password_controls" value="Password manager deployed / recommended"><span class="opt-text">Password manager deployed or recommended</span></label>
+            <label class="opt-item"><input type="checkbox" name="password_controls" value="Shared/default passwords still in use"><span class="opt-text">⚠ Shared or default passwords in use</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         AU — AUDIT & ACCOUNTABILITY
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-AU" data-domain="AU">
+      <div class="domain-header" onclick="toggleSection('sec-AU')">
+        <div class="domain-code-block"><div class="dc-code">AU</div><div class="dc-num">3.3</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Audit &amp; Accountability</div>
+          <div class="domain-subtitle">9 practices — Logging, monitoring, and audit trail for CUI systems</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.3.1 / 3.3.2</span><span class="practice-title">Audit log creation &amp; protection</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">What events are logged on CUI systems, and where are logs stored?</div>
+          <div class="practice-guidance">Logs must cover logins, failed logins, privilege escalation, account management, and object access on CUI systems. <strong>Logs stored only on the source system are insufficient</strong> — they must be forwarded to a protected centralized location that cannot be modified by the system being logged.</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="Successful and failed login attempts logged"><span class="opt-text">Successful &amp; failed login attempts</span></label>
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="Account creation, modification, deletion logged"><span class="opt-text">Account creation/modification/deletion</span></label>
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="Privilege escalation / sudo usage logged"><span class="opt-text">Privilege escalation</span></label>
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="File access / object access on CUI data logged"><span class="opt-text">File/object access on CUI data</span></label>
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="Network connection events logged (firewall)"><span class="opt-text">Network/firewall connection events</span></label>
+            <label class="opt-item"><input type="checkbox" name="audit_events" value="Cloud audit logs enabled (M365 Purview / AWS CloudTrail)"><span class="opt-text">Cloud audit logs (Purview / CloudTrail)</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Centralized Log Storage / SIEM Solution</label>
+            <input type="text" name="siem_solution" placeholder="e.g. Microsoft Sentinel, Splunk, Elastic SIEM, SolarWinds, no centralized logging">
+          </div>
+          <div class="form-group">
+            <label class="field-label">How long are audit logs retained?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="log_retention" value="Less than 30 days"> &lt;30 days</label>
+              <label class="radio-pill"><input type="radio" name="log_retention" value="30–90 days"> 30–90 days</label>
+              <label class="radio-pill"><input type="radio" name="log_retention" value="90 days – 1 year"> 90 days–1 year</label>
+              <label class="radio-pill"><input type="radio" name="log_retention" value="1–3 years"> 1–3 years</label>
+              <label class="radio-pill"><input type="radio" name="log_retention" value="3+ years"> 3+ years</label>
+              <label class="radio-pill"><input type="radio" name="log_retention" value="Unknown"> Unknown</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Are logs reviewed on a regular basis — and by whom?</label>
+            <textarea name="log_review" placeholder="e.g. Microsoft Sentinel alert rules notify our MSP's SOC team in real-time. Weekly manual review of M365 Unified Audit Log by our IT manager. No formal review process currently."></textarea>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>SIEM dashboard screenshots showing log ingestion from CUI systems</li>
+              <li>Audit log policy document specifying what is logged and retention period</li>
+              <li>Sample audit log showing required event types</li>
+              <li>Evidence logs are protected from modification (access controls on log storage)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CM — CONFIGURATION MANAGEMENT
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-CM" data-domain="CM">
+      <div class="domain-header" onclick="toggleSection('sec-CM')">
+        <div class="domain-code-block"><div class="dc-code">CM</div><div class="dc-num">3.4</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Configuration Management</div>
+          <div class="domain-subtitle">9 practices — Baselines, hardening, and change control for CUI systems</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.4.1 / 3.4.2</span><span class="practice-title">Baseline configuration &amp; change control</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">Do you maintain documented baseline configurations for CUI systems? How are configuration changes managed?</div>
+          <div class="practice-guidance">A baseline configuration is a documented, approved starting state for a system. Changes must go through a process — ad hoc changes to production CUI systems are a finding. <strong>Assessors will compare actual system configs against your documented baseline.</strong></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="Documented baseline configurations exist for all CUI systems"><span class="opt-text">Documented baselines exist for all CUI systems</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="Baseline configurations stored in version control"><span class="opt-text">Baselines in version control</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="Formal change control / change management process"><span class="opt-text">Formal change control process</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="Configuration deviation alerts / monitoring in place"><span class="opt-text">Configuration deviation monitoring/alerts</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="Changes made ad hoc without formal review"><span class="opt-text">⚠ Changes made ad hoc without formal review</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_baseline" value="No documented baselines exist"><span class="opt-text">⚠ No documented baselines exist</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">What hardening standard / benchmark is used for CUI system configuration? (CIS Benchmarks, DISA STIGs, custom)</label>
+            <input type="text" name="hardening_standard" placeholder="e.g. CIS Benchmark Level 1 for Windows Server 2022, DISA STIG for RHEL 8, custom internal baseline, none">
+          </div>
+        </div>
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.4.6 / 3.4.7</span><span class="practice-title">Least functionality — software and ports</span><span class="sev-tag sev-medium">Medium</span></div>
+          <div class="practice-question">How do you ensure CUI systems run only necessary software and have only necessary network ports/services enabled?</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="cm_least_func" value="Application allowlisting enforced (only approved software runs)"><span class="opt-text">Application allowlisting enforced</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_least_func" value="Regular port scan to identify unnecessary open ports"><span class="opt-text">Regular port scanning for unnecessary services</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_least_func" value="Unnecessary services/roles disabled on CUI systems"><span class="opt-text">Unnecessary services disabled</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_least_func" value="Software installation restricted to administrators"><span class="opt-text">Software install restricted to admins</span></label>
+            <label class="opt-item"><input type="checkbox" name="cm_least_func" value="Users can install any software freely"><span class="opt-text">⚠ Users can install any software freely</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Is Ubiquiti (UniFi) networking equipment in use in the CUI environment?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="ubiquiti_yn" value="Yes"> Yes</label>
+              <label class="radio-pill"><input type="radio" name="ubiquiti_yn" value="No"> No</label>
+            </div>
+            <div class="reveal-block" id="ubiquiti-detail">
+              <span class="reveal-label">— Ubiquiti Configuration Detail</span>
+              <div class="form-group">
+                <label class="field-label">Is the UniFi controller cloud-managed or self-hosted on-premises?</label>
+                <div class="radio-row">
+                  <label class="radio-pill"><input type="radio" name="ubiquiti_mgmt" value="Self-hosted / on-premises UniFi Network Application"> Self-hosted (on-prem)</label>
+                  <label class="radio-pill"><input type="radio" name="ubiquiti_mgmt" value="Cloud-managed via UI.com / UniFi Site Manager"> ⚠ Cloud-managed (UI.com)</label>
+                  <label class="radio-pill"><input type="radio" name="ubiquiti_mgmt" value="Unsure"> Unsure</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="field-label">Describe your Ubiquiti configuration relevant to CUI — VLANs, firewall rules, firmware update process</label>
+                <textarea name="ubiquiti_config" placeholder="e.g. UniFi controller running on dedicated Ubuntu VM on-prem. CUI VLAN 20 isolated from corporate VLAN 10 with inter-VLAN firewall rules blocking all traffic. Firmware updated monthly via local controller. No cloud access enabled. Default credentials changed. Syslog forwarding to Sentinel configured..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SC — SYSTEM & COMMUNICATIONS PROTECTION
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-SC" data-domain="SC">
+      <div class="domain-header" onclick="toggleSection('sec-SC')">
+        <div class="domain-code-block"><div class="dc-code">SC</div><div class="dc-num">3.13</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">System &amp; Communications Protection</div>
+          <div class="domain-subtitle">16 practices — Network architecture, encryption, and boundary protection</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.13.1 / 3.13.2</span><span class="practice-title">Boundary protection &amp; network monitoring</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">Describe your network architecture — specifically how the CUI environment is separated from external networks and internal non-CUI systems.</div>
+          <div class="practice-guidance">Boundary protection requires more than a firewall at the perimeter. The CUI environment needs its own defined boundary with controlled ingress/egress. <strong>Flat networks where CUI lives alongside general corporate traffic are a critical finding.</strong></div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Primary Firewall / UTM Appliance</label>
+              <input type="text" name="firewall_vendor" placeholder="e.g. Palo Alto PA-220, Fortinet FortiGate 60F, pfSense, SonicWall TZ470, Cisco Meraki MX">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Network Segmentation Model</label>
+              <select name="network_segmentation">
+                <option value="">Select</option>
+                <option>CUI enclave — physically separate hardware</option>
+                <option>CUI VLAN — logically separated with firewall rules</option>
+                <option>CUI subnet — some separation but limited controls</option>
+                <option>Flat network — no segmentation</option>
+                <option>Cloud-only — no on-prem network</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Describe your firewall rule policy for CUI traffic — what is explicitly allowed in/out and what is the default posture?</label>
+            <textarea name="firewall_rules" placeholder="e.g. Default deny all. CUI VLAN 20 allowed outbound HTTPS to approved DoD portals only (whitelist). Inbound blocked except established sessions. RDP blocked externally. ICMP blocked cross-VLAN. Log all denied traffic to Sentinel..."></textarea>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>Network topology / architecture diagram</li>
+              <li>Firewall configuration export or screenshot of ruleset</li>
+              <li>VLAN configuration showing CUI segment isolation</li>
+              <li>Penetration test or vulnerability scan results (last 12 months)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.13.8 / 3.13.10</span><span class="practice-title">Encryption in transit &amp; at rest</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">Is CUI encrypted in transit and at rest? Describe the specific encryption mechanisms used.</div>
+          <div class="practice-guidance">CMMC requires FIPS 140-2 validated cryptographic modules. Not all commercial encryption meets this bar. <strong>TLS 1.2 minimum required; TLS 1.0/1.1 are findings. BitLocker without TPM protection has weaknesses assessors look for.</strong></div>
+          <div class="sub-section">
+            <span class="sub-section-title">Encryption at Rest</span>
+            <div class="option-grid two">
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="BitLocker with TPM on all CUI workstations"><span class="opt-text">BitLocker + TPM — workstations</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="BitLocker on CUI file servers"><span class="opt-text">BitLocker — file servers</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="Microsoft 365 encryption (at-rest in cloud)"><span class="opt-text">M365 at-rest encryption</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="Azure/AWS storage encryption enabled"><span class="opt-text">Cloud storage encryption</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="Database-level encryption for CUI databases"><span class="opt-text">Database-level encryption</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_rest" value="No encryption at rest on some CUI systems"><span class="opt-text">⚠ No encryption on some CUI systems</span></label>
+            </div>
+          </div>
+          <div class="sub-section">
+            <span class="sub-section-title">Encryption in Transit</span>
+            <div class="option-grid two">
+              <label class="opt-item"><input type="checkbox" name="encryption_transit" value="TLS 1.2 or 1.3 enforced — TLS 1.0/1.1 disabled"><span class="opt-text">TLS 1.2+ enforced — 1.0/1.1 disabled</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_transit" value="Email encrypted in transit (TLS)"><span class="opt-text">Email TLS enforced</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_transit" value="VPN uses FIPS-validated encryption"><span class="opt-text">VPN uses FIPS-validated cipher suites</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_transit" value="SFTP used for file transfer (not FTP)"><span class="opt-text">SFTP used — FTP disabled</span></label>
+              <label class="opt-item"><input type="checkbox" name="encryption_transit" value="Unencrypted protocols in use on CUI network"><span class="opt-text">⚠ Unencrypted protocols on CUI network</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SI — SYSTEM & INFORMATION INTEGRITY
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-SI" data-domain="SI">
+      <div class="domain-header" onclick="toggleSection('sec-SI')">
+        <div class="domain-code-block"><div class="dc-code">SI</div><div class="dc-num">3.14</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">System &amp; Information Integrity</div>
+          <div class="domain-subtitle">7 practices — Malware protection, patching, and security alerts</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.14.1 / 3.14.2</span><span class="practice-title">Malicious code protection</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">What endpoint protection solution is deployed on CUI systems? Describe detection, response, and update mechanisms.</div>
+          <div class="practice-guidance">AV alone is generally insufficient. Assessors look for EDR capability with behavioral detection, automatic updates, and managed response. <strong>Personal/consumer AV products (Windows Defender standalone, Malwarebytes free) are commonly flagged.</strong></div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Endpoint Protection Solution</label>
+              <input type="text" name="edr_solution" placeholder="e.g. Microsoft Defender for Endpoint P2, CrowdStrike Falcon, SentinelOne, Sophos Intercept X, Windows Defender (standalone)">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Deployment Coverage on CUI Systems</label>
+              <select name="edr_coverage">
+                <option value="">Select</option>
+                <option>100% — all CUI systems covered and managed</option>
+                <option>Mostly — some CUI systems missing coverage</option>
+                <option>Partial — significant gaps</option>
+                <option>None</option>
+              </select>
+            </div>
+          </div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Centrally managed with alerting"><span class="opt-text">Centrally managed with alerting</span></label>
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Automatic signature/definition updates"><span class="opt-text">Automatic signature updates</span></label>
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Behavioral / heuristic detection (EDR capability)"><span class="opt-text">Behavioral/heuristic detection (EDR)</span></label>
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Email scanning / attachment sandboxing"><span class="opt-text">Email scanning / attachment sandboxing</span></label>
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Alerts routed to SIEM or reviewed by SOC"><span class="opt-text">Alerts → SIEM or SOC reviewed</span></label>
+            <label class="opt-item"><input type="checkbox" name="edr_features" value="Devices run without current signatures"><span class="opt-text">⚠ Devices with outdated signatures</span></label>
+          </div>
+        </div>
+
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.14.4 / 3.14.5</span><span class="practice-title">Patch management</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">Describe your patch management process for CUI systems — how quickly are critical patches applied and how is compliance tracked?</div>
+          <div class="practice-guidance">CMMC requires timely patching. Industry standard is Critical patches within 30 days, High within 60 days. <strong>Assessors will run vulnerability scans and check for known CVEs on CUI systems.</strong> Unpatched critical vulnerabilities are automatic findings.</div>
+          <div class="two-col">
+            <div class="form-group">
+              <label class="field-label">Patch Management Tool</label>
+              <input type="text" name="patch_tool" placeholder="e.g. Microsoft WSUS, Intune, ManageEngine, Automox, manual Windows Update">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Critical Patch SLA (target days to patch)</label>
+              <select name="patch_sla_critical">
+                <option value="">Select</option>
+                <option>Within 7 days</option>
+                <option>Within 14 days</option>
+                <option>Within 30 days</option>
+                <option>Within 60 days</option>
+                <option>No defined SLA</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">When was the last vulnerability scan performed on CUI systems, and what tool was used?</label>
+            <input type="text" name="vuln_scan_last" placeholder="e.g. Tenable Nessus — January 2026. No vulnerability scanning currently performed.">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Are there any known unpatched critical/high vulnerabilities currently open on CUI systems?</label>
+            <textarea name="open_vulns" placeholder="Describe any known open vulnerabilities and the remediation plan / timeline. If unsure, state that."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         IR — INCIDENT RESPONSE
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-IR" data-domain="IR">
+      <div class="domain-header" onclick="toggleSection('sec-IR')">
+        <div class="domain-code-block"><div class="dc-code">IR</div><div class="dc-num">3.6</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Incident Response</div>
+          <div class="domain-subtitle">3 practices — Incident handling, reporting, and testing</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.6.1 / 3.6.2</span><span class="practice-title">IR capability &amp; reporting</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">Does your organization have a documented, tested Incident Response Plan (IRP) that covers CUI incidents?</div>
+          <div class="practice-guidance">The IRP must include roles and responsibilities, detection/reporting procedures, containment/eradication steps, and recovery procedures. <strong>DoD contractors must report cybersecurity incidents affecting CUI to DIBNet within 72 hours.</strong> Assessors will ask you to walk through a tabletop scenario.</div>
+          <div class="option-grid wide">
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="Documented IRP exists — current within last 12 months"><span class="opt-text">Documented IRP — current within last 12 months</span></label>
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="IRP includes specific roles and named contacts"><span class="opt-text">IRP includes specific roles and named contacts</span></label>
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="Tabletop exercise conducted in last 12 months"><span class="opt-text">Tabletop exercise conducted — last 12 months</span></label>
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="Team is aware of 72-hour DIBNet reporting requirement"><span class="opt-text">Team aware of 72-hour DIBNet reporting requirement</span></label>
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="Retainer with IR firm or MSSP in place"><span class="opt-text">IR firm retainer / MSSP in place</span></label>
+            <label class="opt-item"><input type="checkbox" name="ir_capability" value="No formal IRP exists"><span class="opt-text">⚠ No formal IRP exists</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Prior Incidents — Has your organization experienced a cybersecurity incident in the past 3 years?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="prior_incident_yn" value="Yes"> Yes</label>
+              <label class="radio-pill"><input type="radio" name="prior_incident_yn" value="No"> No</label>
+              <label class="radio-pill"><input type="radio" name="prior_incident_yn" value="Unsure"> Unsure</label>
+            </div>
+            <div class="reveal-block" id="incident-detail">
+              <span class="reveal-label">— Prior Incident Detail</span>
+              <textarea name="prior_incident_detail" placeholder="Describe: What type of incident? (ransomware, phishing, breach, etc.) When? What systems were affected? Was CUI potentially exposed? Was it reported to DoD / FBI / CISA? What forensic investigation was conducted? What remediation was taken? What documentation exists?"></textarea>
+            </div>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>Incident Response Plan document</li>
+              <li>Tabletop exercise records (date, attendees, scenarios covered, lessons learned)</li>
+              <li>Incident logs / ticketing records for any prior incidents</li>
+              <li>DIBNet reporting records (if incidents occurred)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MA — MAINTENANCE
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-MA" data-domain="MA">
+      <div class="domain-header" onclick="toggleSection('sec-MA')">
+        <div class="domain-code-block"><div class="dc-code">MA</div><div class="dc-num">3.7</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Maintenance</div>
+          <div class="domain-subtitle">6 practices — Controlled maintenance of CUI systems</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.7.1 / 3.7.2 / 3.7.5</span><span class="practice-title">Controlled maintenance &amp; remote maintenance</span><span class="sev-tag sev-medium">Medium</span></div>
+          <div class="practice-question">How is maintenance of CUI systems performed — including by third-party vendors or your MSP? What controls ensure CUI is not exposed during maintenance?</div>
+          <div class="practice-guidance">Remote maintenance using tools like ConnectWise, Datto RMM, or Kaseya must be authenticated, encrypted, and logged. <strong>Maintenance sessions must be terminated when not in use.</strong> Vendors cannot maintain a persistent always-on connection to CUI systems without strong controls.</div>
+          <div class="option-grid wide">
+            <label class="opt-item"><input type="checkbox" name="ma_controls" value="All maintenance sessions logged with start/end time"><span class="opt-text">All maintenance sessions logged (start/end time, who, what)</span></label>
+            <label class="opt-item"><input type="checkbox" name="ma_controls" value="MSP / vendor maintenance requires MFA to initiate"><span class="opt-text">MSP/vendor maintenance requires MFA</span></label>
+            <label class="opt-item"><input type="checkbox" name="ma_controls" value="Remote maintenance sessions are encrypted"><span class="opt-text">Remote maintenance sessions are encrypted</span></label>
+            <label class="opt-item"><input type="checkbox" name="ma_controls" value="Media sanitized before leaving CUI environment"><span class="opt-text">Media sanitized before removal from CUI environment</span></label>
+            <label class="opt-item"><input type="checkbox" name="ma_controls" value="MSP has persistent always-on access without logging"><span class="opt-text">⚠ MSP has persistent access without session logging</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">MSP / Vendor Remote Management Tool Used</label>
+            <input type="text" name="rmm_tool" placeholder="e.g. ConnectWise Automate, Datto RMM, Kaseya VSA, N-able, none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MP — MEDIA PROTECTION
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-MP" data-domain="MP">
+      <div class="domain-header" onclick="toggleSection('sec-MP')">
+        <div class="domain-code-block"><div class="dc-code">MP</div><div class="dc-num">3.8</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Media Protection</div>
+          <div class="domain-subtitle">9 practices — Physical and digital media handling, sanitization, and disposal</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.8.1 / 3.8.2 / 3.8.3</span><span class="practice-title">Media access, marking, and sanitization</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">How does your organization handle physical and digital media containing CUI?</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="USB drives prohibited or controlled on CUI systems"><span class="opt-text">USB drives prohibited or controlled on CUI systems</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="CUI media labeled / marked appropriately"><span class="opt-text">CUI media labeled appropriately</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="CUI media stored in locked cabinet / restricted area"><span class="opt-text">CUI media stored in locked/restricted area</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="Media sanitized before disposal (DoD 5220.22-M or NIST 800-88)"><span class="opt-text">Media sanitized before disposal (NIST 800-88)</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="Sanitization records maintained"><span class="opt-text">Sanitization records maintained</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="CUI printed on shared/unsecured printers"><span class="opt-text">⚠ CUI printed on shared/unsecured printers</span></label>
+            <label class="opt-item"><input type="checkbox" name="mp_controls" value="USB drives freely used on CUI systems"><span class="opt-text">⚠ USB drives freely used on CUI systems</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         PE — PHYSICAL PROTECTION
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-PE" data-domain="PE">
+      <div class="domain-header" onclick="toggleSection('sec-PE')">
+        <div class="domain-code-block"><div class="dc-code">PE</div><div class="dc-num">3.10</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Physical Protection</div>
+          <div class="domain-subtitle">6 practices — Physical access to CUI systems and work areas</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.10.1 / 3.10.2 / 3.10.3</span><span class="practice-title">Physical access control</span><span class="sev-tag sev-medium">Medium</span></div>
+          <div class="practice-question">How is physical access to CUI systems and work areas controlled?</div>
+          <div class="practice-guidance">Physical access must be limited to authorized personnel. Visitors must be escorted. CUI systems cannot be in open areas accessible to unauthorized personnel. <strong>Assessors conduct a physical walkthrough — they will look for tailgating opportunities, unlocked server rooms, and unattended CUI workstations.</strong></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="Key card / badge access to CUI work areas"><span class="opt-text">Key card / badge access to CUI work areas</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="Physical access logs maintained"><span class="opt-text">Physical access logs maintained</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="Visitors escorted and logged"><span class="opt-text">Visitors escorted and logged</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="Server room / network closet locked"><span class="opt-text">Server room / network closet locked</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="Screen lock enforced after inactivity"><span class="opt-text">Screen lock enforced after inactivity</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="CUI workstations in open / public areas"><span class="opt-text">⚠ CUI workstations in open/public areas</span></label>
+            <label class="opt-item"><input type="checkbox" name="pe_controls" value="No physical access controls — open office"><span class="opt-text">⚠ No physical access controls</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Describe the physical location of CUI systems — building type, access controls, and any shared-space concerns</label>
+            <textarea name="pe_description" placeholder="e.g. Engineering workstations are in a dedicated room on the second floor, accessed by key card badge only, no windows to exterior. Server room is locked with combination lock, access restricted to 3 IT staff. Building has lobby with receptionist — visitors are signed in and issued visitor badge..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         PS — PERSONNEL SECURITY
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-PS" data-domain="PS">
+      <div class="domain-header" onclick="toggleSection('sec-PS')">
+        <div class="domain-code-block"><div class="dc-code">PS</div><div class="dc-num">3.9</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Personnel Security</div>
+          <div class="domain-subtitle">2 practices — Screening and termination procedures</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.9.1 / 3.9.2</span><span class="practice-title">Personnel screening &amp; termination</span><span class="sev-tag sev-medium">Medium</span></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="ps_controls" value="Background checks conducted for CUI-access personnel"><span class="opt-text">Background checks for CUI-access personnel</span></label>
+            <label class="opt-item"><input type="checkbox" name="ps_controls" value="Background check policy documented"><span class="opt-text">Background check policy documented</span></label>
+            <label class="opt-item"><input type="checkbox" name="ps_controls" value="Termination checklist includes CUI access revocation"><span class="opt-text">Termination checklist includes CUI access revocation</span></label>
+            <label class="opt-item"><input type="checkbox" name="ps_controls" value="NDA / confidentiality agreement signed for CUI handlers"><span class="opt-text">NDA signed for CUI-handling personnel</span></label>
+            <label class="opt-item"><input type="checkbox" name="ps_controls" value="No formal background check process"><span class="opt-text">⚠ No formal background check process</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RA — RISK ASSESSMENT
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-RA" data-domain="RA">
+      <div class="domain-header" onclick="toggleSection('sec-RA')">
+        <div class="domain-code-block"><div class="dc-code">RA</div><div class="dc-num">3.11</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Risk Assessment</div>
+          <div class="domain-subtitle">3 practices — Periodic risk assessments and vulnerability management</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.11.1 / 3.11.2 / 3.11.3</span><span class="practice-title">Risk assessment &amp; vulnerability scanning</span><span class="sev-tag sev-high">High</span></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="ra_controls" value="Formal risk assessment conducted and documented"><span class="opt-text">Formal risk assessment documented</span></label>
+            <label class="opt-item"><input type="checkbox" name="ra_controls" value="Risk assessment reviewed / updated at least annually"><span class="opt-text">Risk assessment updated annually</span></label>
+            <label class="opt-item"><input type="checkbox" name="ra_controls" value="Vulnerability scanning performed on CUI systems periodically"><span class="opt-text">Vulnerability scanning periodic</span></label>
+            <label class="opt-item"><input type="checkbox" name="ra_controls" value="Scan findings tracked to remediation in POAM"><span class="opt-text">Scan findings tracked to POAM</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Vulnerability Scanning Tool and Frequency</label>
+            <input type="text" name="vuln_tool" placeholder="e.g. Tenable Nessus — monthly, Qualys — quarterly, Microsoft Defender Vulnerability Management — continuous, none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CA — SECURITY ASSESSMENT
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-CA" data-domain="CA">
+      <div class="domain-header" onclick="toggleSection('sec-CA')">
+        <div class="domain-code-block"><div class="dc-code">CA</div><div class="dc-num">3.12</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Security Assessment</div>
+          <div class="domain-subtitle">4 practices — SSP, POAM, and ongoing control assessment</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.12.1 / 3.12.2 / 3.12.3 / 3.12.4</span><span class="practice-title">SSP, POAM, and control effectiveness</span><span class="sev-tag sev-critical">Critical</span></div>
+          <div class="practice-question">SSP and POAM Status</div>
+          <div class="practice-guidance">The System Security Plan (SSP) is the foundational document for your CMMC assessment — it must describe every system in scope and how each of the 110 practices is implemented. The POAM tracks known gaps with remediation timelines. <strong>Without an SSP, your assessment cannot begin.</strong></div>
+          <div class="option-grid wide">
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="SSP exists and covers all 110 NIST 800-171 practices"><span class="opt-text">SSP exists — covers all 110 practices</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="SSP is current — updated within last 12 months"><span class="opt-text">SSP current — updated last 12 months</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="POAM exists documenting known gaps with remediation timelines"><span class="opt-text">POAM exists with gap remediation timelines</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="SPRS score has been calculated and submitted"><span class="opt-text">SPRS score calculated and submitted</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="Internal assessment / gap analysis completed"><span class="opt-text">Internal assessment / gap analysis completed</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="No SSP exists"><span class="opt-text">⚠ No SSP exists</span></label>
+            <label class="opt-item"><input type="checkbox" name="ca_docs" value="No POAM exists"><span class="opt-text">⚠ No POAM exists</span></label>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>System Security Plan (SSP) — complete and current</li>
+              <li>Plan of Action &amp; Milestones (POAM) — all gaps documented</li>
+              <li>SPRS submission record</li>
+              <li>Prior self-assessment worksheet (NIST 800-171 DoD Assessment Methodology)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         AT — AWARENESS & TRAINING
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-AT" data-domain="AT">
+      <div class="domain-header" onclick="toggleSection('sec-AT')">
+        <div class="domain-code-block"><div class="dc-code">AT</div><div class="dc-num">3.2</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Awareness &amp; Training</div>
+          <div class="domain-subtitle">2 practices — Security awareness and role-based training</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.2.1 / 3.2.2</span><span class="practice-title">Security awareness training</span><span class="sev-tag sev-medium">Medium</span></div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="Annual security awareness training completed by all CUI-access personnel"><span class="opt-text">Annual SAT — all CUI-access personnel</span></label>
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="Training completion records maintained"><span class="opt-text">Training completion records maintained</span></label>
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="Role-based training for privileged users / admins"><span class="opt-text">Role-based training — privileged users</span></label>
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="CUI handling specifically covered in training"><span class="opt-text">CUI handling covered in training content</span></label>
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="Phishing simulation conducted"><span class="opt-text">Phishing simulation conducted</span></label>
+            <label class="opt-item"><input type="checkbox" name="at_controls" value="No formal security training program"><span class="opt-text">⚠ No formal security training</span></label>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="field-label">Training Platform / Provider Used</label>
+            <input type="text" name="training_platform" placeholder="e.g. KnowBe4, Proofpoint Security Awareness, Microsoft Viva Learning, internal training, none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RE — RECOVERY (Added under CA/RA practices in 800-171)
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-RE" data-domain="RE">
+      <div class="domain-header" onclick="toggleSection('sec-RE')">
+        <div class="domain-code-block"><div class="dc-code">RE</div><div class="dc-num">Backup</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Recovery &amp; Backup</div>
+          <div class="domain-subtitle">Backup strategy, retention, and recovery testing for CUI systems</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-question">Describe your backup and recovery posture for CUI systems.</div>
+          <div class="practice-guidance">Backups of CUI data are themselves CUI and must be protected equivalently. <strong>Backups stored on the same system or network segment as the primary data provide no real protection against ransomware.</strong> Assessors will ask to see recovery test records.</div>
+          <div class="option-grid two">
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="CUI data backed up regularly (daily or more frequent)"><span class="opt-text">CUI data backed up daily+</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Backups stored offsite or in separate cloud tenant"><span class="opt-text">Backups offsite or separate cloud tenant</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Backups encrypted at rest"><span class="opt-text">Backups encrypted at rest</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Immutable / air-gapped backups (ransomware protection)"><span class="opt-text">Immutable / air-gapped backups</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Recovery test performed in last 12 months"><span class="opt-text">Recovery test performed — last 12 months</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Backups not tested — assumed to work"><span class="opt-text">⚠ Backups never tested</span></label>
+            <label class="opt-item"><input type="checkbox" name="backup_controls" value="Backups stored on same network as primary data"><span class="opt-text">⚠ Backups on same network as primary</span></label>
+          </div>
+          <div class="two-col" style="margin-top:12px">
+            <div class="form-group">
+              <label class="field-label">Backup Solution</label>
+              <input type="text" name="backup_solution" placeholder="e.g. Veeam + Azure Blob, Datto BCDR, Acronis, Windows Server Backup">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Recovery Point Objective (RPO)</label>
+              <select name="backup_rpo">
+                <option value="">Select</option>
+                <option>Continuous / &lt;1 hour</option>
+                <option>4 hours</option>
+                <option>24 hours (daily)</option>
+                <option>Weekly</option>
+                <option>Unknown / undefined</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         ESP — EXTERNAL SERVICE PROVIDERS
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-ESP" data-domain="ESP">
+      <div class="domain-header" onclick="toggleSection('sec-ESP')">
+        <div class="domain-code-block"><div class="dc-code">ESP</div><div class="dc-num">3.13.9</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">External Service Providers &amp; Supply Chain</div>
+          <div class="domain-subtitle">Cloud services, MSPs, and subcontractors that touch CUI</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="practice-ref"><span class="practice-num">3.13.9 / SC.3.177</span><span class="practice-title">External service provider assessment</span><span class="sev-tag sev-high">High</span></div>
+          <div class="practice-question">List every external service provider, cloud platform, or vendor that has access to CUI or CUI systems.</div>
+          <div class="practice-guidance">This is a critical scoping question. Every ESP that touches CUI may extend your assessment boundary or require a flow-down of CMMC requirements. <strong>Cloud services must be FedRAMP Moderate Authorized or equivalent to process CUI — standard commercial Microsoft 365 is NOT authorized for CUI.</strong></div>
+          <div class="form-group">
+            <label class="field-label">List all ESPs that touch CUI — include: company name, what they do, what CUI access they have, and whether they have a CMMC/FedRAMP authorization</label>
+            <textarea name="esp_list" style="min-height:130px" placeholder="e.g.&#10;1. Microsoft — M365 GCC High — cloud email/storage for CUI — FedRAMP High authorized ✓&#10;2. Altec Technologies (MSP) — RMM + help desk — admin access to all endpoints — no CMMC cert (risk documented in POAM)&#10;3. Solidworks (Dassault Systemes) — CAD/PLM on-prem — CUI files processed — no cloud component, on-prem only ✓&#10;4. ADP Payroll — HR/payroll data — no CUI access ✗ (out of scope)"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Are there written agreements (MSA, BAA, or security addendum) with all ESPs that have CUI access?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="esp_agreements" value="Yes — all ESPs with CUI access have written agreements"> Yes — all covered</label>
+              <label class="radio-pill"><input type="radio" name="esp_agreements" value="Partial — some ESPs lack written agreements"> Partial</label>
+              <label class="radio-pill"><input type="radio" name="esp_agreements" value="No formal agreements in place"> No formal agreements</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Do you share CUI with subcontractors? If so, do they have CMMC requirements flowed down in their contracts?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="subcontractor_flowdown" value="Yes — CMMC L2 requirements flowed down"> Yes — L2 flowed down</label>
+              <label class="radio-pill"><input type="radio" name="subcontractor_flowdown" value="Partial — some subs have requirements"> Partial</label>
+              <label class="radio-pill"><input type="radio" name="subcontractor_flowdown" value="No — subs receive CUI without CMMC requirements"> ⚠ No flowdown</label>
+              <label class="radio-pill"><input type="radio" name="subcontractor_flowdown" value="No subcontractors receive CUI"> No subs receive CUI</label>
+            </div>
+          </div>
+          <div class="evidence-block">
+            <span class="evidence-label">Evidence a C3PAO will request</span>
+            <ul class="evidence-list">
+              <li>List of all cloud services used — with FedRAMP authorization status</li>
+              <li>Written agreements / security addenda with CUI-touching ESPs</li>
+              <li>Subcontractor CMMC flowdown language from contracts</li>
+              <li>Evidence of CMMC status for subcontractors receiving CUI (SPRS records)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         CLOSING — KNOWN GAPS & SUMMARY
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="domain-section" id="sec-CLOSE" data-domain="CLOSE">
+      <div class="domain-header" onclick="toggleSection('sec-CLOSE')">
+        <div class="domain-code-block"><div class="dc-code">GAP</div><div class="dc-num">Close</div></div>
+        <div class="domain-title-block">
+          <div class="domain-title">Known Gaps &amp; Closing Information</div>
+          <div class="domain-subtitle">Self-identified weaknesses, timeline, and additional context</div>
+        </div>
+        <div class="domain-toggle">▾</div>
+      </div>
+      <div class="domain-body">
+        <div class="practice-group">
+          <div class="form-group">
+            <label class="field-label">What security gaps or weaknesses are you already aware of — before this assessment?</label>
+            <div class="practice-guidance" style="margin-bottom:10px">Be specific. This information stays in your report and helps us prioritize remediation. Assessors respect organizations that know their gaps — it demonstrates a mature security awareness.</div>
+            <textarea name="known_gaps" style="min-height:110px" placeholder="e.g. We know MFA is not enforced on our legacy ERP system — we've been waiting for the vendor to support it. Our SSP was last updated 2 years ago and doesn't reflect our cloud migration. We don't have a formal POAM. Our log retention is only 30 days..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="field-label">What compensating controls are in place for known gaps?</label>
+            <textarea name="compensating_controls" placeholder="e.g. For the ERP system without MFA — it is network-isolated on its own VLAN with no internet access, accessible only from 3 named workstations, and all access is logged. We consider this a compensating control while we work with the vendor on MFA support..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="field-label">What is the primary driver for pursuing CMMC Level 2 certification now?</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="certification_driver" value="Contract requirement — deadline specified"> Contract deadline</label>
+              <label class="radio-pill"><input type="radio" name="certification_driver" value="Prime contractor requiring it for continued work"> Prime contractor requiring it</label>
+              <label class="radio-pill"><input type="radio" name="certification_driver" value="Bid on new DoD contract requiring CMMC"> Bidding on new contract</label>
+              <label class="radio-pill"><input type="radio" name="certification_driver" value="Proactive — getting ahead of requirement"> Proactive</label>
+              <label class="radio-pill"><input type="radio" name="certification_driver" value="Post-incident remediation requirement"> Post-incident requirement</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Estimated budget available for CMMC remediation (optional — helps us right-size the roadmap)</label>
+            <select name="remediation_budget">
+              <option value="">Prefer not to answer</option>
+              <option>Under $25,000</option>
+              <option>$25,000 – $75,000</option>
+              <option>$75,000 – $150,000</option>
+              <option>$150,000 – $300,000</option>
+              <option>$300,000+</option>
+              <option>Unknown / TBD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Anything else that would help us understand your environment, constraints, or concerns?</label>
+            <textarea name="additional_context" placeholder="Any context about your technical environment, organizational constraints, prior compliance work, or specific concerns about the assessment process..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-block">
+      <h3>Generate CUI Scoping Report</h3>
+      <p>Submitting this questionnaire will generate a comprehensive CUI scoping report and gap assessment, delivered as Word documents to the email address you provided. This information is confidential and governed by the Innovatech Consulting Solutions engagement agreement.</p>
+
+      <div style="background:#0a1628;border:1px solid #1F5C99;border-radius:6px;padding:20px 24px;margin:0 auto 24px;max-width:560px;text-align:left;">
+        <label style="display:block;font-size:11px;font-weight:700;color:#1F5C99;letter-spacing:0.08em;margin-bottom:8px;">⚙ WORKFLOW ENDPOINT (INNOVATECH INTERNAL)</label>
+        <input
+          type="url"
+          id="webhookUrlInput"
+          placeholder="https://your-n8n-instance.app.n8n.cloud/webhook/cui-scoping"
+          style="width:100%;box-sizing:border-box;background:#0D1B2A;border:1px solid #2a4a6a;border-radius:4px;padding:10px 14px;color:#e0e0e0;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;"
+          value="https://brushclaims.app.n8n.cloud/webhook/cui-scoping"
+        />
+        <p style="font-size:11px;color:#556;margin:8px 0 0;line-height:1.5;">Paste your n8n Production Webhook URL above. This field is for Innovatech staff only — clients do not see or interact with this field.</p>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <div class="spinner" id="spinner"></div>
+        <span id="submitText">Generate Report →</span>
+      </button>
+      <p class="disclaimer">Report will be delivered to the email provided in the Organizational Identification section.</p>
+      <div class="alert alert-success" id="alertSuccess">
+        <strong>Submission received.</strong> Your CUI scoping report and gap assessment are being generated. You will receive both Word documents at the email address you provided within a few minutes.
+      </div>
+      <div class="alert alert-error" id="alertError">
+        Submission failed. Please try again or contact Innovatech Consulting Solutions directly.
+      </div>
+    </div>
+
+    </form>
+  </main>
+</div>
+
+<script>
+// ── Domain config ────────────────────────────────────────────────────────────
+const DOMAINS = [
+  { id:'sec-org',   code:'ORG', name:'Org ID' },
+  { id:'sec-cui',   code:'CUI', name:'CUI Taxonomy' },
+  { id:'sec-AC',    code:'AC',  name:'Access Control' },
+  { id:'sec-IA',    code:'IA',  name:'Identification & Auth' },
+  { id:'sec-AU',    code:'AU',  name:'Audit & Accountability' },
+  { id:'sec-CM',    code:'CM',  name:'Config Management' },
+  { id:'sec-SC',    code:'SC',  name:'Sys & Comms Protection' },
+  { id:'sec-SI',    code:'SI',  name:'Sys & Info Integrity' },
+  { id:'sec-IR',    code:'IR',  name:'Incident Response' },
+  { id:'sec-MA',    code:'MA',  name:'Maintenance' },
+  { id:'sec-MP',    code:'MP',  name:'Media Protection' },
+  { id:'sec-PE',    code:'PE',  name:'Physical Protection' },
+  { id:'sec-PS',    code:'PS',  name:'Personnel Security' },
+  { id:'sec-RA',    code:'RA',  name:'Risk Assessment' },
+  { id:'sec-CA',    code:'CA',  name:'Security Assessment' },
+  { id:'sec-AT',    code:'AT',  name:'Awareness & Training' },
+  { id:'sec-RE',    code:'RE',  name:'Recovery & Backup' },
+  { id:'sec-ESP',   code:'ESP', name:'External Providers' },
+  { id:'sec-CLOSE', code:'GAP', name:'Known Gaps' },
+];
+
+// Build sidebar and nav
+const sidebar = document.getElementById('sidebarDomains');
+const navEl = document.getElementById('domainNav');
+
+DOMAINS.forEach(d => {
+  // Sidebar
+  const item = document.createElement('a');
+  item.href = `#${d.id}`;
+  item.className = 'domain-item';
+  item.dataset.secId = d.id;
+  item.innerHTML = `<span class="domain-code">${d.code}</span><span class="domain-name">${d.name}</span><span class="domain-check" id="check-${d.id}"></span>`;
+  sidebar.appendChild(item);
+
+  // Nav dots
+  const dot = document.createElement('a');
+  dot.href = `#${d.id}`;
+  dot.className = 'nav-dot';
+  dot.dataset.secId = d.id;
+  dot.innerHTML = `<div class="nav-dot-circle"></div><span class="nav-dot-label">${d.code}</span>`;
+  navEl.appendChild(dot);
+});
+
+// ── Section toggle ────────────────────────────────────────────────────────────
+function toggleSection(id) {
+  const sec = document.getElementById(id);
+  sec.classList.toggle('collapsed');
+}
+
+// ── Conditional reveals ───────────────────────────────────────────────────────
+function bindReveal(radioName, targetId, triggerValue) {
+  document.querySelectorAll(`input[name="${radioName}"]`).forEach(r => {
+    r.addEventListener('change', () => {
+      const block = document.getElementById(targetId);
+      if (block) block.classList.toggle('show', r.value === triggerValue && r.checked);
+    });
+  });
+}
+
+bindReveal('remote_access_yn', 'remote-detail', 'Yes');
+bindReveal('external_connections_yn', 'ext-conn-detail', 'Yes');
+bindReveal('prior_incident_yn', 'incident-detail', 'Yes');
+bindReveal('ubiquiti_yn', 'ubiquiti-detail', 'Yes');
+
+// ── Option visual state ───────────────────────────────────────────────────────
+document.querySelectorAll('.opt-item input').forEach(inp => {
+  inp.addEventListener('change', () => {
+    if (inp.type === 'checkbox') {
+      inp.closest('.opt-item').classList.toggle('selected', inp.checked);
+    } else {
+      document.querySelectorAll(`input[name="${inp.name}"]`).forEach(r => {
+        r.closest('.opt-item')?.classList.remove('selected');
+      });
+      inp.closest('.opt-item')?.classList.add('selected');
+    }
+  });
+});
+
+document.querySelectorAll('.radio-pill input').forEach(inp => {
+  inp.addEventListener('change', () => {
+    document.querySelectorAll(`input[name="${inp.name}"]`).forEach(r => {
+      r.closest('.radio-pill').classList.remove('selected');
+    });
+    inp.closest('.radio-pill').classList.add('selected');
+  });
+});
+
+// ── Progress tracking ─────────────────────────────────────────────────────────
+function updateProgress() {
+  const groups = document.querySelectorAll('.practice-group, .form-group');
+  let total = 0, filled = 0;
+  const sectionFilled = {};
+
+  DOMAINS.forEach(d => { sectionFilled[d.id] = { total: 0, filled: 0 }; });
+
+  document.querySelectorAll('.practice-group').forEach(pg => {
+    const sec = pg.closest('.domain-section');
+    const secId = sec ? sec.id : null;
+    total++;
+    if (secId) sectionFilled[secId] = sectionFilled[secId] || { total: 0, filled: 0 };
+
+    const hasInput = pg.querySelector('input[type="text"], input[type="email"], input[type="date"], input[type="number"], select, textarea');
+    const hasCheckbox = pg.querySelector('input[type="checkbox"]:checked, input[type="radio"]:checked');
+    const textFilled = hasInput && (hasInput.value || '').trim().length > 0;
+
+    if (hasCheckbox || textFilled) {
+      filled++;
+      if (secId && sectionFilled[secId]) sectionFilled[secId].filled = (sectionFilled[secId].filled || 0) + 1;
+    }
+    if (secId && sectionFilled[secId]) sectionFilled[secId].total = (sectionFilled[secId].total || 0) + 1;
+  });
+
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // Update section check marks and sidebar
+  DOMAINS.forEach(d => {
+    const sf = sectionFilled[d.id] || { total: 0, filled: 0 };
+    const checkEl = document.getElementById(`check-${d.id}`);
+    const done = sf.total > 0 && sf.filled >= sf.total * 0.6;
+    if (checkEl) {
+      checkEl.textContent = done ? '✓' : '';
+      checkEl.classList.toggle('done', done);
+    }
+  });
+}
+
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('change', updateProgress);
+  el.addEventListener('input', updateProgress);
+});
+
+// ── Intersection observer for active section ──────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      document.querySelectorAll('.domain-item, .nav-dot').forEach(el => {
+        el.classList.toggle('active', el.dataset.secId === id);
+      });
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-100px 0px -60% 0px' });
+
+DOMAINS.forEach(d => {
+  const el = document.getElementById(d.id);
+  if (el) observer.observe(el);
+});
+
+// ── Form submission ───────────────────────────────────────────────────────────
+document.getElementById('scopingForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const emailVal = document.querySelector('input[name="contact_email"]').value;
+  const nameVal = document.querySelector('input[name="company_name"]').value;
+  if (!emailVal || !nameVal) {
+    alert('Please complete at minimum the Company Name and Contact Email in the Organizational Identification section.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  const spinner = document.getElementById('spinner');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  document.getElementById('submitText').textContent = 'Generating Report...';
+
+  // Collect all form data
+  const data = {};
+  const fd = new FormData(this);
+  const multi = {};
+  for (let [k, v] of fd.entries()) {
+    if (multi[k]) { multi[k].push(v); } else { multi[k] = [v]; }
+  }
+  for (let k in multi) {
+    data[k] = multi[k].length === 1 ? multi[k][0] : multi[k];
+  }
+
+  // Ensure all checkboxes are captured (unchecked won't appear in FormData)
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+    if (!data[cb.name]) data[cb.name] = [];
+    if (!Array.isArray(data[cb.name])) data[cb.name] = [data[cb.name]];
+    if (!data[cb.name].includes(cb.value)) data[cb.name].push(cb.value);
+  });
+
+  try {
+    const WEBHOOK_URL = (document.getElementById('webhookUrlInput').value || '').trim();
+    if (!WEBHOOK_URL) {
+      btn.disabled = false;
+      document.getElementById('submitText').textContent = 'Generate Report →';
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('alertError').style.display = 'block';
+      document.getElementById('alertError').textContent = 'No webhook URL configured. Please enter the n8n workflow endpoint above.';
+      return;
+    }
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Server error');
+    document.getElementById('alertSuccess').style.display = 'block';
+    document.getElementById('alertError').style.display = 'none';
+    document.getElementById('submitText').textContent = 'Submitted ✓';
+  } catch (err) {
+    document.getElementById('alertError').style.display = 'block';
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    document.getElementById('submitText').textContent = 'Generate Report →';
+  }
+});
+</script>
+</body>
+</html>
